@@ -24,8 +24,7 @@ app.post('/api/register', async function(req, res) {
     const teacher = await knex('teachers').select('id').where('email', teacherToAdd);
     let teacherId;
     if (!teacher.length) {
-        // insert teacher to the teacher table
-        teacherId = await knex('teachers').insert({email: teacherToAdd});
+        return res.status(400).send('Teacher does not exist in the system');
     } else {
         teacherId = teacher[0].id;
     }
@@ -136,3 +135,5 @@ app.post('/api/retrievefornotifications', async function(req, res) {
 app.listen(3000, function() {
     console.log('App listening on port 3000!');
 });
+
+module.exports = app;
