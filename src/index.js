@@ -14,6 +14,11 @@ app.get('/', function(req, res) {
 
 // 1. As a teacher, I want to register one or more students to a specified teacher.
 app.post('/api/register', async function(req, res) {
+    const contentType = req.headers['content-type'];
+    if (!contentType || contentType.indexOf('application/json') !== 0) {
+        return res.status(400).send('Content type is not application/json');
+    }
+
     const teacherToAdd = req.body.teacher;
     // check if the teacher already exists
     const teacher = await knex('teachers').select('id').where('email', teacherToAdd);
