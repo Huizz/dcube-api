@@ -100,6 +100,38 @@ app.post('/api/suspend', async function(req, res) {
 });
 
 // 4. As a teacher, I want to retrieve a list of students who can receive a given notification.
+app.post('/api/retrievefornotifications', async function(req, res) {
+    const contentType = req.headers['content-type'];
+    if (!contentType || contentType.indexOf('application/json') !== 0) {
+        return res.status(400).send('Content type is not application/json');
+    }
+
+    if (!req.body.teacher || !req.body.notification) {
+        return res.status(400).send('Request body is in the wrong format');
+    }
+
+    // get the emails of the students mentioned in the notification
+    const notificationMessage = req.body.notification;
+    const splitMessage = notificationMessage.split(' ');
+    let students = [];
+    splitMessage.forEach(function(message) {
+        const matched = message.match(/^(@\w+@\w+\.com)$/g);
+        if (matched) {
+            students.push(matched[0].replace('@', ''));
+        }
+    });
+    // check if students are suspended
+    let recipients = await knex('students').pluck('email').whereIn('email', students).where('suspend', 0);
+
+    // get the students registered under this teacher, is not in the recipients array and is not suspended
+    let queryStudentResults = await knex.pluck('s.email').from('teachers').leftJoin({str: 'student_teacher_relationship'}, 'teachers.id', 'str.teacher_id').where('teachers.email', req.body.teacher).leftJoin({s: 'students'}, 's.id', 'str.student_id').whereNotIn('s.email', recipients).where('s.suspend', 0);
+
+    // merge the arrays for final recipients array
+    recipients = recipients.concat(queryStudentResults);
+    res.status(200).send({
+        recipients: recipients
+    });
+});
 
 app.listen(3000, function() {
     console.log('App listening on port 3000!');
