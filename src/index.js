@@ -77,7 +77,22 @@ app.get('/api/commonstudents', async function (req, res) {
 
     res.send({students: queryEmailResults});
 });
+
 // 3. As a teacher, I want to suspend a specified student.
+app.post('/api/suspend', async function(req, res) {
+    const contentType = req.headers['content-type'];
+    if (!contentType || contentType.indexOf('application/json') !== 0) {
+        return res.status(400).send('Content type is not application/json');
+    }
+
+    if (!req.body.student) {
+        return res.status(400).send('Request body is in the wrong format');
+    }
+
+    // change suspend state for student
+    await knex('students').where('email', req.body.student).update('suspend', 1);
+    res.status(204).send();
+});
 
 // 4. As a teacher, I want to retrieve a list of students who can receive a given notification.
 
