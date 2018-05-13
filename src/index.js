@@ -16,7 +16,7 @@ app.get('/', function(req, res) {
 app.post('/api/register', async function(req, res) {
     const contentType = req.headers['content-type'];
     if (!contentType || contentType.indexOf('application/json') !== 0) {
-        return res.status(400).send('Content type is not application/json');
+        return res.status(400).send({error: 'content type', message: 'Content type is not application/json'});
     }
 
     const teacherToAdd = req.body.teacher;
@@ -24,7 +24,7 @@ app.post('/api/register', async function(req, res) {
     const teacher = await knex('teachers').select('id').where('email', teacherToAdd);
     let teacherId;
     if (!teacher.length) {
-        return res.status(400).send('Teacher does not exist in the system');
+        return res.status(400).send({error: 'teacher', message: 'Teacher does not exist in the system'});
     } else {
         teacherId = teacher[0].id;
     }
@@ -79,18 +79,18 @@ app.get('/api/commonstudents', async function (req, res) {
     // let queryEmailResults = await knex('students').select(knex.raw('group_concat(email) as email')).whereIn('id', studentIds);
     let queryEmailResults = await knex('students').pluck('email').whereIn('id', studentIds);
 
-    res.send({students: queryEmailResults});
+    res.status(200).json({students: queryEmailResults});
 });
 
 // 3. As a teacher, I want to suspend a specified student.
 app.post('/api/suspend', async function(req, res) {
     const contentType = req.headers['content-type'];
     if (!contentType || contentType.indexOf('application/json') !== 0) {
-        return res.status(400).send('Content type is not application/json');
+        return res.status(400).send({error: 'content type', message: 'Content type is not application/json'});
     }
 
     if (!req.body.student) {
-        return res.status(400).send('Request body is in the wrong format');
+        return res.status(400).send({error: 'request', message: 'Request body is in the wrong format'});
     }
 
     // change suspend state for student
@@ -102,11 +102,11 @@ app.post('/api/suspend', async function(req, res) {
 app.post('/api/retrievefornotifications', async function(req, res) {
     const contentType = req.headers['content-type'];
     if (!contentType || contentType.indexOf('application/json') !== 0) {
-        return res.status(400).send('Content type is not application/json');
+        return res.status(400).send({error: 'content type', message: 'Content type is not application/json'});
     }
 
     if (!req.body.teacher || !req.body.notification) {
-        return res.status(400).send('Request body is in the wrong format');
+        return res.status(400).send({error: 'request', message: 'Request body is in the wrong format'});
     }
 
     // get the emails of the students mentioned in the notification
@@ -127,9 +127,13 @@ app.post('/api/retrievefornotifications', async function(req, res) {
 
     // merge the arrays for final recipients array
     recipients = recipients.concat(queryStudentResults);
-    res.status(200).send({
+    res.status(200).json({
         recipients: recipients
     });
+});
+
+app.use(function (req, res, next) {
+    res.status(404).send('Not found');
 });
 
 app.listen(3000, function() {
