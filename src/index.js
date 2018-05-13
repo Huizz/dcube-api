@@ -56,6 +56,9 @@ app.post('/api/register', async function(req, res) {
 // 2. As a teacher, I want to retrieve a list of students common to a given list of teachers
 // (i.e. retrieve students who are registered to ALL of the given teachers).
 app.get('/api/commonstudents', async function (req, res) {
+    if (!req.query.teacher) {
+        return res.status(400).send({error: 'query', message: 'Missing parameter "teacher" in the query parameters passed'});
+    }
     // get the teacher email
     let teacherEmails = req.query.teacher;
     let teacherCount;
