@@ -8,6 +8,10 @@
     "start": "node src/index.js",
     "lint": "eslint --ext .js src"
   },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/Huizz/dcube-api"
+  },
   "author": "cuoguo@gmail.com",
   "license": "MIT",
   "dependencies": {
