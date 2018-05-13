@@ -16,7 +16,8 @@ describe('Endpoint /api/register', function() {
                 teacher: 'teacherjoe@gmail.com',
                 students:
                     [
-                        'studenttan@example.com'
+                        'studenttan@example.com',
+                        'studenthon@example.com'
                     ]
             })
             .then(function(res) {
