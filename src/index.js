@@ -96,6 +96,11 @@ app.post('/api/suspend', async function(req, res) {
         return res.status(400).send({error: 'request', message: 'Request body is in the wrong format'});
     }
 
+    // check if student exists
+    let student = await knex('students').pluck('id').where('email', req.body.student);
+    if (!student.length) {
+        return res.status(400).send({error: 'student', message: 'Student does not exist'});
+    }
     // change suspend state for student
     await knex('students').where('email', req.body.student).update('suspend', 1);
     res.status(204).send();
