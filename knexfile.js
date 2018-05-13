@@ -1,4 +1,4 @@
-require('dotenv').config({path: 'db-config.env'});
+require('dotenv').config({path: 'process.env'});
 module.exports = {
     client: 'mysql',
     connection: {
