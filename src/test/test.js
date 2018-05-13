@@ -149,3 +149,100 @@ describe('Endpoint /api/suspend', function() {
             });
     });
 });
+
+describe('Endpoint /api/retrievefornotifications', function() {
+    this.timeout(1000);
+    // POST - return matching students including the mentioned student(s)
+    it('should return matching students including mentioned student(s)', function() {
+        return chai.request(app)
+            .post('/api/retrievefornotifications')
+            .send({
+                teacher: 'teacherken@gmail.com',
+                notification: 'Hello students! @studenthon@example.com'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.key('recipients');
+                expect(res.body.recipients).to.be.an('array');
+                expect(res.body.recipients).to.include('studenthon@example.com');
+            });
+    });
+
+    // POST - return matching students
+    it('should return matching students', function() {
+        return chai.request(app)
+            .post('/api/retrievefornotifications')
+            .send({
+                teacher: 'teacherken@gmail.com',
+                notification: 'Hello students!'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.key('recipients');
+                expect(res.body.recipients).to.be.an('array');
+            });
+    });
+
+    // POST - wrong type
+    it('should return content type error', function() {
+        return chai.request(app)
+            .post('/api/retrievefornotifications')
+            .type('form')
+            .send({
+                teacher: 'teacherken@gmail.com',
+                notification: 'Hello students!'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.equal('content type');
+            });
+    });
+
+    // POST - Missing teacher
+    it('should return request error for missing teacher', function() {
+        return chai.request(app)
+            .post('/api/retrievefornotifications')
+            .send({
+                notification: 'Hello students!'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.equal('request');
+            });
+    });
+
+    // POST - Missing notification
+    it('should return request error for missing notification', function() {
+        return chai.request(app)
+            .post('/api/retrievefornotifications')
+            .send({
+                teacher: 'teacherken@gmail.com'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.equal('request');
+            });
+    });
+
+    // POST - return matching students
+    it('should return student error', function() {
+        return chai.request(app)
+            .post('/api/retrievefornotifications')
+            .send({
+                teacher: 'teacherken@gmail.com',
+                notification: 'Hello students! @studentjoy@example.com'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.equal('student');
+            });
+    });
+});
