@@ -94,4 +94,58 @@ describe('Endpoint /api/commonstudents', function() {
     });
 });
 
+describe('Endpoint /api/suspend', function() {
+    this.timeout(1000);
+    // POST - get common students
+    it('should suspend the student', function() {
+        return chai.request(app)
+            .post('/api/suspend')
+            .send({
+                student: 'studenttan@example.com'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(204);
+            });
+    });
 
+    // POST - no such student
+    it('should return student error', function() {
+        return chai.request(app)
+            .post('/api/suspend')
+            .send({
+                student: 'studentlee@example.com'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.be.equal('student');
+            });
+    });
+
+    // POST - wrong type
+    it('should return content type error', function() {
+        return chai.request(app)
+            .post('/api/suspend')
+            .type('form')
+            .send({
+                student: 'studenttan@example.com'
+            })
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.equal('content type');
+            });
+    });
+
+    // POST - wrong type
+    it('should return request error', function() {
+        return chai.request(app)
+            .post('/api/suspend')
+            .send({})
+            .then(function(res) {
+                expect(res).to.have.status(400);
+                expect(res.body).to.have.keys(['error', 'message']);
+                expect(res.body.error).to.equal('request');
+            });
+    });
+});
