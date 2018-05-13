@@ -1,8 +1,9 @@
 module.exports = {
     client: 'mysql',
     connection: {
-        user: 'dcube_user',
-        password: 'dcube_user',
-        database: 'dcube'
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_DATABASE
     }
 };
