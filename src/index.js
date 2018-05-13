@@ -127,7 +127,14 @@ app.post('/api/retrievefornotifications', async function(req, res) {
             students.push(matched[0].replace('@', ''));
         }
     });
-    // check if students are suspended
+
+    // check if student(s) exist
+    let checkStudents = await knex('students').pluck('email').whereIn('email', students);
+    if (students.length && !checkStudents.length) {
+        return res.status(400).send({error: 'student', message: 'Student does not exist'});
+    }
+
+    // get email only if students are not suspended
     let recipients = await knex('students').pluck('email').whereIn('email', students).where('suspend', 0);
 
     // get the students registered under this teacher, is not in the recipients array and is not suspended
